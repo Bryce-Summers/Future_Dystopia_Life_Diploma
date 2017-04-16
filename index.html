@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>The Examined Life</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body>
+
+        <h1 id='header'>The Examined Life</h1>
+        <h2 id='instructions'>Story Text goes Here...</h2>
+
+        <canvas id="theCanvas" width="1280" height="800"></canvas>
+
+        <div id="container"></div>
+        
+        <script src="./builds/a_current_build.js"></script>
+        <script src="./modules/BDS.js/builds/a_current_build.js"></script>
+
+        <script src="src/example_core.js"></script>
+    
+        <script src="src/tools/Controller_Draw.js"></script>
+        <script src="src/tools/Controller_Eraser.js"></script>
+        <script src="src/tools/Controller_NewLine.js"></script>
+
+        <script src="src/editor.js"></script>
+    
+        <img id="eraser_tool" width="64" height="64" src="images/eraser_tool.png" alt="Eraser Tool.">
+        <img id="line_tool"   width="64" height="64" src="images/line_tool.png"   alt="Eraser Tool.">
+
+    </body>
+</html>

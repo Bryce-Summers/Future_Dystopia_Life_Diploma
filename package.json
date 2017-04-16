@@ -1,0 +1,32 @@
+{
+  "name": "Future_Dystopia_Life_Diploma",
+  "version": "1.0.0",
+  "description": "A narrative Experience about contemplation and life.",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "hello"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bryce-Summers/Future_Dystopia_Life_Diploma.git"
+  },
+  "keywords": [
+    "bryce",
+    "data",
+    "structures",
+    "algorithms"
+  ],
+  "author": "Bryce Summers",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bryce-Summers/Future_Dystopia_Life_Diploma/issues"
+  },
+  "homepage": "https://github.com/Bryce-Summers/Future_Dystopia_Life_Diploma#readme",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-include-source": "^1.0.0"
+  }
+}
