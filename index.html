@@ -11,23 +11,22 @@
         <h1 id='header'>The Examined Life</h1>
         <h2 id='instructions'>Story Text goes Here...</h2>
 
-        <canvas id="theCanvas" width="1280" height="800"></canvas>
+        <canvas id="theCanvas" width="1200" height="800"></canvas>
 
         <div id="container"></div>
         
+        <script src="src/namespace.js"></script>
+
+        <!-- Future dystopia compiled source code. -->
         <script src="./builds/a_current_build.js"></script>
         <script src="./modules/BDS.js/builds/a_current_build.js"></script>
 
-        <script src="src/example_core.js"></script>
+        <!-- Main file. -->
+        <script src="src/input_main.js"></script>
+        <script src="src/main.js"></script>
     
-        <script src="src/tools/Controller_Draw.js"></script>
-        <script src="src/tools/Controller_Eraser.js"></script>
-        <script src="src/tools/Controller_NewLine.js"></script>
-
-        <script src="src/editor.js"></script>
-    
-        <img id="eraser_tool" width="64" height="64" src="images/eraser_tool.png" alt="Eraser Tool.">
-        <img id="line_tool"   width="64" height="64" src="images/line_tool.png"   alt="Eraser Tool.">
+        <!-- Load Images in the html, they can be extracted then hidden later. -->
+        <img id="img_cry" width="96" height="96" src="images/Cry.png" alt="Eraser Tool.">
 
     </body>
 </html>
