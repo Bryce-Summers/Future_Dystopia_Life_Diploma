@@ -132,7 +132,7 @@ function loadAudio(fileName)
     //Load the sound file (using a source element for expandability)
 
     var src = document.createElement("source");
-    src.src = fileName + ".mp3";
+    src.src = fileName;
     soundFile.appendChild(src);
 
     //Load the audio tag

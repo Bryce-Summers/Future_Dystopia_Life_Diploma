@@ -17,15 +17,7 @@ function main()
     var controller_draw  = new FDP.Controller_Draw(canvas_G, controller_state);
     var controller_ui    = new BDS.Controller_UI(canvas_G);
 
-    // -- Tools UI.
-    var b1 = new BDS.Box(new BDS.Point(0,   0),
-                         new BDS.Point(64, 64));
-
-    var b2 = new BDS.Box(new BDS.Point(64,   0),
-                         new BDS.Point(128, 64));
-
-    var p1 = b1.toPolyline();
-    var p2 = b2.toPolyline();
+    var controller_story = new FDP.Controller_Story(controller_ui);
 
     var header       = document.getElementById("header");
     var instructions = document.getElementById("instructions");
@@ -34,26 +26,8 @@ function main()
     {
         header.innerHTML       = "Setting the Header text...";
         instructions.innerHTML = "Setting the Story Text.";
+        play(sounds.button);
     }
-
-    var img_cry = document.getElementById("img_cry");
-
-    // We put the line drawing button first to encourage people to use it.
-
-    var pts = [];
-    for(var i = 0; i < 100; i += Math.PI/100)
-    {
-        var cx = 1000;
-        var cy = 400;
-        var radius = 48;
-
-        pts.push(new BDS.Point(cx + radius*Math.cos(i), cy + radius*Math.sin(i)));
-    }
-    var p1 = new BDS.Polyline(true, pts, true);
-
-    controller_ui.createButton(p1, func, img_cry);
-    //controller_ui.createButton(p2, func, img_eraser);
-    
 
     // Layer : Clear the screen and draw the graph.
     root_input.add_universal_controller(controller_draw);    
@@ -63,17 +37,21 @@ function main()
 
     root_input.add_universal_controller(controller_state);
 
+    root_input.add_universal_controller(controller_story);
+
     // Begin the Amazing Experience!
     beginTime();
 
 }
 
 // Run Example.
+var sounds = {};
 window.onload = function()
 {
-    song = loadAudio("./audio/Thank_the_lord_for the_life_ive_lived");
+    sounds.thank_the_lord = loadAudio("./audio/Thank_the_lord_for_the_life_ive_lived.mp3");
+    sounds.button = loadAudio("./audio/button_click.wav");
 
-    play(song);
+    play(sounds.button);
     main();
 }
 
