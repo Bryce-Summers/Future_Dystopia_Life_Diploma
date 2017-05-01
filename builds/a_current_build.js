@@ -1,5 +1,5 @@
 /*! Scribble JS, a project by Bryce Summers.
- *  Single File concatenated by Grunt Concatenate on 24-04-2017
+ *  Single File concatenated by Grunt Concatenate on 01-05-2017
  */
 /*
  * Defines namespaces.
@@ -83,6 +83,7 @@ FDP = {};
       this.state = state;
       this._active = true;
       this._grid_size = 16;
+      this.background = null;
     }
 
     Controller_Draw.prototype.setActive = function(isActive) {
@@ -103,6 +104,9 @@ FDP = {};
       var c, color, i, r, ref, results;
       this._G_Canvas.clearScreen();
       this._G_Canvas.drawScreenBounds();
+      if (this.background !== null) {
+        this._G_Canvas.drawImage(this.background, 0, 0);
+      }
       results = [];
       for (r = i = 0, ref = this.state.h; 0 <= ref ? i < ref : i > ref; r = 0 <= ref ? ++i : --i) {
         results.push((function() {
@@ -127,10 +131,16 @@ FDP = {};
       pts = [new BDS.Point(x0, y0), new BDS.Point(x1, y0), new BDS.Point(x1, y1), new BDS.Point(x0, y1)];
       polyline = new BDS.Polyline(true, pts);
       this._G_Canvas.fillColor(color.toInt());
-      return this._G_Canvas.drawPolygon(polyline, false, true);
+      this._G_Canvas.setAlpha(.5);
+      this._G_Canvas.drawPolygon(polyline, false, true);
+      return this._G_Canvas.setAlpha(1.0);
     };
 
     Controller_Draw.prototype.window_resize = function(event) {};
+
+    Controller_Draw.prototype.setBackground = function(img) {
+      return this.background = img;
+    };
 
     return Controller_Draw;
 
@@ -260,14 +270,16 @@ FDP = {};
 
 (function() {
   FDP.Controller_Story = (function() {
-    function Controller_Story(ui) {
+    function Controller_Story(ui, draw) {
       this.ui = ui;
+      this.draw = draw;
       this._active = true;
-      this.p_left = this.newCircle(200, 400);
-      this.p_right = this.newCircle(1000, 400);
+      this.p_left = this.newCircle(200, 700);
+      this.p_mid = this.newCircle(600, 700);
+      this.p_right = this.newCircle(1000, 700);
       this.p_up = this.newCircle(600, 200);
       this.p_down = this.newCircle(600, 600);
-      this.p_mid = this.newCircle(600, 400);
+      this.current_narrative_audio = null;
       this.buttons = [];
       this.advance_func = this.click(this);
       this.make_story();
@@ -322,85 +334,136 @@ FDP = {};
           header.innerHTML = story.header;
         }
         if (story.statement) {
-          return instructions.innerHTML = story.statement;
+          instructions.innerHTML = story.statement;
+        }
+        if (story.audio) {
+          if (self.current_narrative_audio !== null) {
+            self.current_narrative_audio.pause();
+          }
+          if (story.audio !== null) {
+            play(story.audio);
+            self.current_narrative_audio = story.audio;
+          }
+        }
+        if (story.background) {
+          return self.draw.setBackground(story.background);
         }
       };
     };
 
     Controller_Story.prototype.make_story = function() {
-      var s_birth;
       this.story = [];
       this.story_index = 0;
-      s_birth = {
-        mid: img_cry,
-        header: "Birth",
-        statement: "You were born into this world."
-      };
-      this.story.push(s_birth);
-      s_birth = {
-        left: img_cry,
-        header: "Birth",
-        statement: "You were born into this world."
-      };
-      this.story.push(s_birth);
-      s_birth = {
-        up: img_cry,
-        header: "Birth",
-        statement: "You were born into this world."
-      };
-      this.story.push(s_birth);
-      s_birth = {
-        down: img_cry,
-        header: "Birth",
-        statement: "You were born into this world."
-      };
-      this.story.push(s_birth);
-      s_birth = {
-        right: img_cry,
-        header: "Birth",
-        statement: "You were born into this world."
-      };
-      this.story.push(s_birth);
-      this.story.push({
-        mid: img_study,
-        up: img_play,
-        down: img_dream,
-        header: "",
-        statement: ""
-      });
-      this.story.push({
-        up: img_college,
-        mid: img_work,
-        header: "",
-        statement: ""
-      });
-      this.story.push({
-        up: img_think,
-        mid: img_follow,
-        down: img_work,
-        header: "",
-        statement: ""
-      });
-      this.story.push({
-        up: img_scientist,
-        mid: img_artist,
-        down: img_inventor,
-        header: "",
-        statement: ""
-      });
-      return this.story.push({
-        up: img_think,
-        mid: img_learn,
-        down: img_worry,
-        header: "",
-        statement: ""
-      });
 
       /*
-      @story.push({mid:img_age
-                  ,header:""
-                  ,statement: ""})
+      s_birth = {mid:img_cry, header:"Birth", statement: "You were born into this world."}
+      @story.push(s_birth)
+      s_birth = {left:img_cry, header:"Birth", statement: "You were born into this world."}
+      @story.push(s_birth)
+      s_birth = {up:img_cry, header:"Birth", statement: "You were born into this world."}
+      @story.push(s_birth)
+      s_birth = {down:img_cry, header:"Birth", statement: "You were born into this world."}
+      @story.push(s_birth)
        */
+      this.story.push({
+        left: img_cry,
+        mid: img_cry,
+        right: img_cry,
+        header: "Birth",
+        statement: "I was born into society in 2103.",
+        audio: sounds.intro,
+        background: bg_birth
+      });
+      this.story.push({
+        left: img_cry,
+        mid: img_cry,
+        right: img_cry,
+        header: "Mother's Death",
+        statement: "My Mom died and was buried in a Government Beureu or external standards graveyard.",
+        audio: sounds.mother_died,
+        background: bg_cemetary_mainstream
+      });
+      this.story.push({
+        left: img_todo,
+        mid: img_todo,
+        right: img_todo,
+        header: "Artist Graveyard",
+        statement: "On my way out I passed by the artist graveyard...",
+        audio: sounds.musings_from_the_cradle,
+        background: bg_cemetary_artists
+      });
+      this.story.push({
+        left: img_todo,
+        mid: img_todo,
+        right: img_todo,
+        header: "High School",
+        statement: "I enrolled in a STEM centered High School.",
+        audio: sounds.stem_school,
+        background: bg_highschool
+      });
+      this.story.push({
+        left: img_todo,
+        mid: img_todo,
+        right: img_todo,
+        header: "railroad",
+        statement: "I had a fantasy about working for the railroad. It would have increased my physical difficulty multiplier.",
+        audio: sounds.sixteen_tons,
+        background: bg_railroad
+      });
+      this.story.push({
+        left: img_todo,
+        mid: img_todo,
+        right: img_todo,
+        header: "college",
+        statement: "I took the sensible route and enrolled in college to increase my mental difficulty multiplier.",
+        audio: sounds.the_path_of_logic_and_math,
+        background: bg_railroad
+      });
+      this.story.push({
+        left: img_todo,
+        mid: img_todo,
+        right: img_todo,
+        header: "Professional IT worker",
+        statement: "After graduating college, I became an IT worker at an ethical defense contracter located in Manhattan.",
+        audio: sounds.number_crunching,
+        background: bg_professional
+      });
+      this.story.push({
+        left: img_todo,
+        mid: img_todo,
+        right: img_todo,
+        header: "A plead for the homeless.",
+        statement: "After graduating college, I became an IT worker at an ethical defense contracter.",
+        audio: sounds.plead_for_the_homeless,
+        background: bg_homeless
+      });
+      this.story.push({
+        left: img_todo,
+        mid: img_todo,
+        right: img_todo,
+        header: "Dream from Mom",
+        statement: "A dream from my mother told me to remember the dreams that I had.",
+        audio: sounds.stay_close_to_your_dreams,
+        background: bg_dreams
+      });
+      this.story.push({
+        left: img_todo,
+        mid: img_todo,
+        right: img_todo,
+        header: "Older Years",
+        statement: "From then on, I became an artist and tried to make a unique contribution to the world. I reflected on my life.",
+        audio: sounds.thank_the_lord,
+        background: bg_old_age
+      });
+      return this.story.push({
+        left: img_todo,
+        mid: img_todo,
+        right: img_todo,
+        header: "My Funeral",
+        statement: "I died and was buried in the artist cemetary. A disgrace on the outside, but a fullfilled human being on the inside.",
+        audio: sounds.mother_died_reprise,
+        background: bg_old_age
+      });
     };
 
     Controller_Story.prototype.newCircle = function(x, y) {

@@ -10,18 +10,23 @@
 class FDP.Controller_Story
 
     # BDS.G_Canvas, Controller_State.
-    constructor: (@ui) ->
+    constructor: (@ui, @draw) ->
 
         @_active = true
         
-        
         # We put the line drawing button first to encourage people to use it.
 
-        @p_left  = @newCircle(200, 400)
-        @p_right = @newCircle(1000, 400)
+        @p_left  = @newCircle(200, 700)
+        @p_mid   = @newCircle(600, 700)
+        @p_right = @newCircle(1000,700)
+
+
+
         @p_up    = @newCircle(600, 200)
         @p_down  = @newCircle(600, 600)
-        @p_mid   = @newCircle(600, 400)
+        
+        @current_narrative_audio = null
+
 
         @buttons = []
 
@@ -53,7 +58,7 @@ class FDP.Controller_Story
 
             if story.mid # Story.mid provides the image file.
                 img = story.mid
-                pline = self.p_mid    
+                pline = self.p_mid   
                 b = self.ui.createButton(pline, self.advance_func, img)
                 self.buttons.push(b)
 
@@ -88,12 +93,24 @@ class FDP.Controller_Story
                 instructions.innerHTML = story.statement
 
 
+            if story.audio
+                if self.current_narrative_audio != null
+                    self.current_narrative_audio.pause()
+                if story.audio != null
+                    play(story.audio)
+                    self.current_narrative_audio = story.audio
+
+            # Null goes to a null background.
+            if story.background
+                self.draw.setBackground(story.background)
+
+
     make_story: () ->
 
         @story = []
         @story_index = 0
 
-
+        ###
         s_birth = {mid:img_cry, header:"Birth", statement: "You were born into this world."}
         @story.push(s_birth)
         s_birth = {left:img_cry, header:"Birth", statement: "You were born into this world."}
@@ -102,48 +119,133 @@ class FDP.Controller_Story
         @story.push(s_birth)
         s_birth = {down:img_cry, header:"Birth", statement: "You were born into this world."}
         @story.push(s_birth)
-        s_birth = {right:img_cry, header:"Birth", statement: "You were born into this world."}
-        @story.push(s_birth)
-
-
-        @story.push({mid:img_study
-                   ,up:img_play
-                   ,down:img_dream,
-                   header:"",
-                   statement: ""})
-
-        @story.push({up:img_college
-                    ,mid:img_work
-                    #down:img_dream,
-                    ,header:""
-                    ,statement: ""})
-
-        # FIXME: Add branching narratives, look in sketchbook for story plan.
-        @story.push({up:img_think
-                    ,mid:img_follow
-                    ,down:img_work
-                    ,header:""
-                    ,statement: ""})
-
-        @story.push({up:img_scientist
-                    ,mid:img_artist
-                    ,down:img_inventor
-                    ,header:""
-                    ,statement: ""})
-
-        @story.push({up:img_think
-                    ,mid:img_learn
-                    ,down:img_worry
-                    ,header:""
-                    ,statement: ""})
-
-        ###
-        @story.push({mid:img_age
-                    ,header:""
-                    ,statement: ""})
         ###
 
+        # Birth, clues the user into what the message is all about.
+        @story.push(
+                {left:  img_cry
+                ,mid:    img_cry
+                ,right:  img_cry
+                ,header: "Birth"
+                ,statement: "I was born into society in 2103."
+                ,audio:sounds.intro
+                ,background: bg_birth
+                }
+            )
 
+        # Mother's death. Introduces the Life Diploma.
+        @story.push(
+                {left:   img_cry
+                ,mid:    img_cry
+                ,right:  img_cry
+                ,header: "Mother's Death"
+                ,statement: "My Mom died and was buried in a Government Beureu or external standards graveyard."
+                ,audio:sounds.mother_died
+                ,background:bg_cemetary_mainstream
+                }
+            )
+
+        # Artist Graveyard.
+        @story.push(
+                {left:   img_todo
+                ,mid:    img_todo
+                ,right:  img_todo
+                ,header: "Artist Graveyard"
+                ,statement: "On my way out I passed by the artist graveyard..."
+                ,audio:sounds.musings_from_the_cradle
+                ,background:bg_cemetary_artists
+                }
+            )
+
+        # High School.
+        @story.push(
+                {left:   img_todo
+                ,mid:    img_todo
+                ,right:  img_todo
+                ,header: "High School"
+                ,statement: "I enrolled in a STEM centered High School."
+                ,audio:sounds.stem_school
+                ,background:bg_highschool
+                }
+            )
+
+        @story.push(
+                {left:   img_todo
+                ,mid:    img_todo
+                ,right:  img_todo
+                ,header: "railroad"
+                ,statement: "I had a fantasy about working for the railroad. It would have increased my physical difficulty multiplier."
+                ,audio:sounds.sixteen_tons
+                ,background:bg_railroad
+                }
+            )
+
+        # College studying Information Technology.
+        @story.push(
+                {left:   img_todo
+                ,mid:    img_todo
+                ,right:  img_todo
+                ,header: "college"
+                ,statement: "I took the sensible route and enrolled in college to increase my mental difficulty multiplier."
+                ,audio:sounds.the_path_of_logic_and_math
+                ,background:bg_railroad
+                }
+            )
+
+        @story.push(
+                {left:   img_todo
+                ,mid:    img_todo
+                ,right:  img_todo
+                ,header: "Professional IT worker"
+                ,statement: "After graduating college, I became an IT worker at an ethical defense contracter located in Manhattan."
+                ,audio:sounds.number_crunching
+                ,background:bg_professional
+                }
+            )
+             
+        @story.push(
+                {left:   img_todo
+                ,mid:    img_todo
+                ,right:  img_todo
+                ,header: "A plead for the homeless."
+                ,statement: "After graduating college, I became an IT worker at an ethical defense contracter."
+                ,audio:sounds.plead_for_the_homeless
+                ,background:bg_homeless
+                }
+            )
+
+        @story.push(
+                {left:   img_todo
+                ,mid:    img_todo
+                ,right:  img_todo
+                ,header: "Dream from Mom"
+                ,statement: "A dream from my mother told me to remember the dreams that I had."
+                ,audio:sounds.stay_close_to_your_dreams
+                ,background:bg_dreams
+                }
+            )
+
+        @story.push(
+               {left:    img_todo
+                ,mid:    img_todo
+                ,right:  img_todo
+                ,header: "Older Years"
+                ,statement: "From then on, I became an artist and tried to make a unique contribution to the world. I reflected on my life."
+                ,audio:sounds.thank_the_lord
+                ,background:bg_old_age
+                }
+            )
+
+        @story.push(
+               {left:    img_todo
+                ,mid:    img_todo
+                ,right:  img_todo
+                ,header: "My Funeral"
+                ,statement: "I died and was buried in the artist cemetary. A disgrace on the outside, but a fullfilled human being on the inside."
+                ,audio:sounds.mother_died_reprise
+                ,background:bg_old_age
+                }
+            )
 
     newCircle: (x, y) ->
         pts = []

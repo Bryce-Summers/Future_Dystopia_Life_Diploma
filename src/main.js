@@ -17,7 +17,7 @@ function main()
     var controller_draw  = new FDP.Controller_Draw(canvas_G, controller_state);
     var controller_ui    = new BDS.Controller_UI(canvas_G);
 
-    var controller_story = new FDP.Controller_Story(controller_ui);
+    var controller_story = new FDP.Controller_Story(controller_ui, controller_draw);
 
     var header       = document.getElementById("header");
     var instructions = document.getElementById("instructions");
@@ -48,7 +48,31 @@ function main()
 var sounds = {};
 window.onload = function()
 {
+
+    sounds.intro = loadAudio("./audio/narrative/birth_introduction.mp3");
+
+    sounds.mother_died = loadAudio("./audio/My_Mother_IS_Dead.mp3");
+
+    sounds.musings_from_the_cradle = loadAudio("./audio/Musings_from_the_Cradle.mp3");
+
+    sounds.stem_school = loadAudio("./audio/Welcome_to_STEM_School.mp3");
+
+    sounds.sixteen_tons = loadAudio("./audio/Sixteen_Tons.mp3");
+
+    sounds.the_path_of_logic_and_math = loadAudio("./audio/The_Path_of_Logic_and_Math.mp3");
+
+    sounds.number_crunching = loadAudio("./audio/number_crunching.mp3");
+
+    sounds.plead_for_the_homeless = loadAudio("./audio/PleadForTheHomeless.mp3");
+
+    sounds.stay_close_to_your_dreams = loadAudio("./audio/stay_close_to_your_dream.mp3");
+
     sounds.thank_the_lord = loadAudio("./audio/Thank_the_lord_for_the_life_ive_lived.mp3");
+
+    sounds.mother_died_reprise = loadAudio("./audio/mother_is_dead_reprise.mp3");
+
+
+    // Sound Effects.
     sounds.button = loadAudio("./audio/button_click.wav");
 
     play(sounds.button);

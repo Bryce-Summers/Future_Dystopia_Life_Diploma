@@ -15,6 +15,9 @@ class FDP.Controller_Draw
 
         @_grid_size = 16
 
+        # The background image
+        @background = null
+
     setActive: (isActive) ->
 
         @_active = isActive
@@ -41,6 +44,9 @@ class FDP.Controller_Draw
         # Draw the boundary lines of the screen.
         @_G_Canvas.drawScreenBounds();
 
+        if @background != null
+            @_G_Canvas.drawImage(@background, 0, 0)
+
         for r in [0 ... @state.h]
             for c in [0 ... @state.w]
                 color = @state.readGrid(r, c, null)
@@ -62,6 +68,12 @@ class FDP.Controller_Draw
         polyline = new BDS.Polyline(true, pts)
 
         @_G_Canvas.fillColor(color.toInt())
+        @_G_Canvas.setAlpha(.5)
         @_G_Canvas.drawPolygon(polyline, false, true)
+        @_G_Canvas.setAlpha(1.0)
 
     window_resize: (event) ->
+
+    # Set the background image.
+    setBackground: (img) ->
+        @background = img
