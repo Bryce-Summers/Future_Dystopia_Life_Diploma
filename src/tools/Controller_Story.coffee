@@ -32,17 +32,29 @@ class FDP.Controller_Story
 
         @advance_func = @click(@)
 
+        # A timer until we transition to the next story state.
+        @time_left = null
+
+
+        @total_time = 0.0
+
+        #--------------------------------------------------------
+        # Don't initialize variables under this line,
+        # because they will overwirte the initial story commands.
+        #--------------------------------------------------------
+
         # Generate the entire story.
         @make_story()
 
         # Advance the story to the first element.
         @advance_func()
 
+
     # Transition function.
     click: (self) ->
         () ->
             
-            play(sounds.button)
+            #play(sounds.button)
 
 
             for b in self.buttons
@@ -102,7 +114,27 @@ class FDP.Controller_Story
 
             # Null goes to a null background.
             if story.background
-                self.draw.setBackground(story.background)
+                self.draw.backgroundImage(story.background)
+
+            if story.center_text
+                alpha = 1.0
+                if story.center_target_alpha
+                    alpha = story.center_target_alpha
+
+                transition_speed = .01
+                if story.transition_speed
+                    transition_speed = story.transition_speed
+
+                self.draw.backgroundMono(new FDP.Color(0.0, 0, 0), alpha, transition_speed)
+                self.draw.centerMessage(story.center_text, new FDP.Color(1, 1, 1))
+            else if story.center_target_alpha != undefined
+                self.draw.backgroundMono(new FDP.Color(0, 0, 0), story.center_target_alpha)
+
+            if story.time
+                self.time_left = story.time
+
+            if story.time_end
+                self.time_left = story.time_end - self.total_time
 
 
     make_story: () ->
@@ -121,27 +153,275 @@ class FDP.Controller_Story
         @story.push(s_birth)
         ###
 
-        # Birth, clues the user into what the message is all about.
         @story.push(
-                {left:  img_cry
-                ,mid:    img_cry
-                ,right:  img_cry
-                ,header: "Birth"
-                ,statement: "I was born into society in 2103."
-                ,audio:sounds.intro
+                {
+                audio:sounds.intro
                 ,background: bg_birth
+                ,center_text: "2203 A.D."
+                ,center_target_alpha: 1.0
+                ,time_end: 7390.330000000002
+                ,transition_speed: .01
                 }
             )
+
+        # Birth, clues the user into what the message is all about.
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                #,audio:sounds.intro
+                ,center_text: "Mult"
+                ,time_end:8506.860000000002
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                #,audio:sounds.intro
+                ,center_text: "Mult"
+                ,time_end:9035.420000000002 - 200
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                #,audio:sounds.intro
+                ,center_text: "Mult. I."
+                ,time_end:9617.365000000002 - 200
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                #,audio:sounds.intro
+                ,center_text: "Mult. I. Plier"
+                ,time_end: 10000.365000000002
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:ill_evolution
+                ,center_text: ""
+                ,center_target_alpha: 0.0
+                ,time_end: 29054.570000000003 # Objectivity
+                ,transition_speed: .1
+                }
+            )
+
+        
+        
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:ill_evolution
+                ,center_text: "Objectivity"
+                ,center_target_alpha: 0.0
+                ,time_end: 32487.760000000006 # Productivity
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:ill_evolution
+                ,center_text: "Productivity"
+                ,center_target_alpha: 0.0
+                ,time_end: 34896.325 # Days of government app
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                #,background:null
+                ,center_text: "Days of Government Approved Work."
+                ,center_target_alpha: 1.0
+                ,time_end: 39396.270000000004 - 200 # multiplied by the physical and mental difficulties
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:null
+                ,center_text: "x (Physical + Mental Difficulty)"
+                ,center_target_alpha: 1.0
+                ,time_end: 42812.22 # minus the time wasted on education.
+                ,transition_speed: .01
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:null
+                ,center_text: "- Education Days"
+                ,center_target_alpha: 1.0
+                ,time_end: 47694.810000000005 # External Standards Beureu
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:ill_external_standards
+                ,center_text: ""
+                ,center_target_alpha: 0.0
+                ,time_end: 62494.02500000001 # Life diploma system.
+                ,transition_speed: .2
+                }
+            )
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:ill_external_standards
+                ,center_text: ""
+                ,center_target_alpha: 1.0
+                ,time: 400 
+                ,transition_speed: .2
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:ill_life_diploma
+                ,center_text: ""
+                ,center_target_alpha: 0.0
+                ,time_end: 78236 # Art making.
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:ill_life_diploma
+                ,center_text: "Art making"
+                ,center_target_alpha: 1.0
+                ,time_end: 78985 # Philosophy
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:null
+                ,center_text: "Philosophy"
+                ,center_target_alpha: 1.0
+                ,time_end: 79803 # Etc
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:null
+                ,center_text: "Etc"
+                ,center_target_alpha: 1.0
+                ,time_end: 82046.55500000001 # non-productive education days.
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:null
+                ,center_text: "Non-productive Education Days."
+                ,center_target_alpha: 1.0
+                ,time_end: 90829.30500000001 # Real work days.
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:null
+                ,center_text: "Real Work Days."
+                ,center_target_alpha: 1.0
+                ,time_end: 100134 # Transition to first scene.
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:null
+                ,center_text: "2220 A.D."
+                ,center_target_alpha: 1.0
+                ,time: 3000 # Transition to first scene.
+                ,transition_speed: .1
+                }
+            )
+
+        @story.push(
+                {
+                header: ""
+                ,statement: ""
+                ,background:null
+                ,audio:sounds.mother_died
+                ,center_text: "Mom died when I was 17."
+                ,center_target_alpha: 1.0
+                ,time: 3000 # Transition to first scene.
+                ,transition_speed: .01
+                }
+            )
+
+
+        ###
+        ill_evolution
+        ill_life_diploma
+        ill_mothers_funeral
+        ill_external_standards
+        ###
+
 
         # Mother's death. Introduces the Life Diploma.
         @story.push(
                 {left:   img_cry
                 ,mid:    img_cry
                 ,right:  img_cry
+                ,center_target_alpha: 0.0
                 ,header: "Mother's Death"
                 ,statement: "My Mom died and was buried in a Government Beureu or external standards graveyard."
-                ,audio:sounds.mother_died
-                ,background:bg_cemetary_mainstream
+                ,background:ill_mothers_funeral
                 }
             )
 
@@ -271,7 +551,7 @@ class FDP.Controller_Story
         return @_active
 
     mouse_down: (event) ->
-
+        console.log(@total_time)
 
     mouse_up: (event) ->
 
@@ -281,5 +561,19 @@ class FDP.Controller_Story
 
     # Difference in time between the previous call and this call.
     time: (dt) ->
+
+        @total_time += dt
+
+        # A timer until we transition to the next story state.
+        if @time_left != null
+            @time_left -= dt
+
+            if @time_left < 0
+                # disable timer.
+                @time_left = null
+
+                # The timer will be reset if necessary.
+                @advance_func()
+
 
     window_resize: (event) ->

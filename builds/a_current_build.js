@@ -1,5 +1,5 @@
 /*! Scribble JS, a project by Bryce Summers.
- *  Single File concatenated by Grunt Concatenate on 01-05-2017
+ *  Single File concatenated by Grunt Concatenate on 08-05-2017
  */
 /*
  * Defines namespaces.
@@ -84,6 +84,12 @@ FDP = {};
       this._active = true;
       this._grid_size = 16;
       this.background = null;
+      this.background_color = null;
+      this.background_alpha = 1.0;
+      this.background_target_alpha = 1.0;
+      this.center_text_message = null;
+      this.center_text_color = null;
+      this.transition_speed = .01;
     }
 
     Controller_Draw.prototype.setActive = function(isActive) {
@@ -101,25 +107,32 @@ FDP = {};
     Controller_Draw.prototype.mouse_move = function(event) {};
 
     Controller_Draw.prototype.time = function(dt) {
-      var c, color, i, r, ref, results;
       this._G_Canvas.clearScreen();
-      this._G_Canvas.drawScreenBounds();
       if (this.background !== null) {
         this._G_Canvas.drawImage(this.background, 0, 0);
       }
-      results = [];
-      for (r = i = 0, ref = this.state.h; 0 <= ref ? i < ref : i > ref; r = 0 <= ref ? ++i : --i) {
-        results.push((function() {
-          var j, ref1, results1;
-          results1 = [];
-          for (c = j = 0, ref1 = this.state.w; 0 <= ref1 ? j < ref1 : j > ref1; c = 0 <= ref1 ? ++j : --j) {
-            color = this.state.readGrid(r, c, null);
-            results1.push(this.drawGridSquare(r, c, color));
-          }
-          return results1;
-        }).call(this));
+      if (this.background_alpha !== null) {
+        this._G_Canvas.setAlpha(this.background_alpha);
       }
-      return results;
+      if (this.background_color !== null) {
+        this._G_Canvas.fillColor(this.background_color.toInt());
+        this._G_Canvas.fillScreen();
+        if (this.center_text_message) {
+          this._G_Canvas.fillColor(this.center_text_color.toInt());
+          this._G_Canvas.centerAlignFont();
+          this._G_Canvas.setFont("Verdana", 40);
+          this._G_Canvas.drawText(this.center_text_message, this._G_Canvas.w / 2, this._G_Canvas.h / 2);
+        }
+      }
+      this.background_alpha = (1.0 - this.transition_speed) * this.background_alpha + this.transition_speed * this.background_target_alpha;
+      return this._G_Canvas.setAlpha(1.0);
+
+      /*
+      for r in [0 ... @state.h]
+          for c in [0 ... @state.w]
+              color = @state.readGrid(r, c, null)
+              @drawGridSquare(r, c, color)
+       */
     };
 
     Controller_Draw.prototype.drawGridSquare = function(r, c, color) {
@@ -138,8 +151,22 @@ FDP = {};
 
     Controller_Draw.prototype.window_resize = function(event) {};
 
-    Controller_Draw.prototype.setBackground = function(img) {
+    Controller_Draw.prototype.backgroundImage = function(img) {
       return this.background = img;
+    };
+
+    Controller_Draw.prototype.backgroundMono = function(color, target_alpha, transition_speed) {
+      this.background_color = color;
+      this.background_target_alpha = target_alpha;
+      this.transition_speed = transition_speed;
+      if (!transition_speed) {
+        this.transition_speed = .01;
+      }
+    };
+
+    Controller_Draw.prototype.centerMessage = function(text, color) {
+      this.center_text_message = text;
+      this.center_text_color = color;
     };
 
     return Controller_Draw;
@@ -282,14 +309,15 @@ FDP = {};
       this.current_narrative_audio = null;
       this.buttons = [];
       this.advance_func = this.click(this);
+      this.time_left = null;
+      this.total_time = 0.0;
       this.make_story();
       this.advance_func();
     }
 
     Controller_Story.prototype.click = function(self) {
       return function() {
-        var b, img, j, len, pline, ref, story;
-        play(sounds.button);
+        var alpha, b, img, j, len, pline, ref, story, transition_speed;
         ref = self.buttons;
         for (j = 0, len = ref.length; j < len; j++) {
           b = ref[j];
@@ -346,7 +374,27 @@ FDP = {};
           }
         }
         if (story.background) {
-          return self.draw.setBackground(story.background);
+          self.draw.backgroundImage(story.background);
+        }
+        if (story.center_text) {
+          alpha = 1.0;
+          if (story.center_target_alpha) {
+            alpha = story.center_target_alpha;
+          }
+          transition_speed = .01;
+          if (story.transition_speed) {
+            transition_speed = story.transition_speed;
+          }
+          self.draw.backgroundMono(new FDP.Color(0.0, 0, 0), alpha, transition_speed);
+          self.draw.centerMessage(story.center_text, new FDP.Color(1, 1, 1));
+        } else if (story.center_target_alpha !== void 0) {
+          self.draw.backgroundMono(new FDP.Color(0, 0, 0), story.center_target_alpha);
+        }
+        if (story.time) {
+          self.time_left = story.time;
+        }
+        if (story.time_end) {
+          return self.time_left = story.time_end - self.total_time;
         }
       };
     };
@@ -366,22 +414,200 @@ FDP = {};
       @story.push(s_birth)
        */
       this.story.push({
-        left: img_cry,
-        mid: img_cry,
-        right: img_cry,
-        header: "Birth",
-        statement: "I was born into society in 2103.",
         audio: sounds.intro,
-        background: bg_birth
+        background: bg_birth,
+        center_text: "2203 A.D.",
+        center_target_alpha: 1.0,
+        time_end: 7390.330000000002,
+        transition_speed: .01
       });
+      this.story.push({
+        header: "",
+        statement: "",
+        center_text: "Mult",
+        time_end: 8506.860000000002,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        center_text: "Mult",
+        time_end: 9035.420000000002 - 200,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        center_text: "Mult. I.",
+        time_end: 9617.365000000002 - 200,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        center_text: "Mult. I. Plier",
+        time_end: 10000.365000000002,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: ill_evolution,
+        center_text: "",
+        center_target_alpha: 0.0,
+        time_end: 29054.570000000003,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: ill_evolution,
+        center_text: "Objectivity",
+        center_target_alpha: 0.0,
+        time_end: 32487.760000000006,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: ill_evolution,
+        center_text: "Productivity",
+        center_target_alpha: 0.0,
+        time_end: 34896.325,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        center_text: "Days of Government Approved Work.",
+        center_target_alpha: 1.0,
+        time_end: 39396.270000000004 - 200,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: null,
+        center_text: "x (Physical + Mental Difficulty)",
+        center_target_alpha: 1.0,
+        time_end: 42812.22,
+        transition_speed: .01
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: null,
+        center_text: "- Education Days",
+        center_target_alpha: 1.0,
+        time_end: 47694.810000000005,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: ill_external_standards,
+        center_text: "",
+        center_target_alpha: 0.0,
+        time_end: 62494.02500000001,
+        transition_speed: .2
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: ill_external_standards,
+        center_text: "",
+        center_target_alpha: 1.0,
+        time: 400,
+        transition_speed: .2
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: ill_life_diploma,
+        center_text: "",
+        center_target_alpha: 0.0,
+        time_end: 78236,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: ill_life_diploma,
+        center_text: "Art making",
+        center_target_alpha: 1.0,
+        time_end: 78985,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: null,
+        center_text: "Philosophy",
+        center_target_alpha: 1.0,
+        time_end: 79803,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: null,
+        center_text: "Etc",
+        center_target_alpha: 1.0,
+        time_end: 82046.55500000001,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: null,
+        center_text: "Non-productive Education Days.",
+        center_target_alpha: 1.0,
+        time_end: 90829.30500000001,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: null,
+        center_text: "Real Work Days.",
+        center_target_alpha: 1.0,
+        time_end: 100134,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: null,
+        center_text: "2220 A.D.",
+        center_target_alpha: 1.0,
+        time: 3000,
+        transition_speed: .1
+      });
+      this.story.push({
+        header: "",
+        statement: "",
+        background: null,
+        audio: sounds.mother_died,
+        center_text: "Mom died when I was 17.",
+        center_target_alpha: 1.0,
+        time: 3000,
+        transition_speed: .01
+      });
+
+      /*
+      ill_evolution
+      ill_life_diploma
+      ill_mothers_funeral
+      ill_external_standards
+       */
       this.story.push({
         left: img_cry,
         mid: img_cry,
         right: img_cry,
+        center_target_alpha: 0.0,
         header: "Mother's Death",
         statement: "My Mom died and was buried in a Government Beureu or external standards graveyard.",
-        audio: sounds.mother_died,
-        background: bg_cemetary_mainstream
+        background: ill_mothers_funeral
       });
       this.story.push({
         left: img_todo,
@@ -490,13 +716,24 @@ FDP = {};
       return this._active;
     };
 
-    Controller_Story.prototype.mouse_down = function(event) {};
+    Controller_Story.prototype.mouse_down = function(event) {
+      return console.log(this.total_time);
+    };
 
     Controller_Story.prototype.mouse_up = function(event) {};
 
     Controller_Story.prototype.mouse_move = function(event) {};
 
-    Controller_Story.prototype.time = function(dt) {};
+    Controller_Story.prototype.time = function(dt) {
+      this.total_time += dt;
+      if (this.time_left !== null) {
+        this.time_left -= dt;
+        if (this.time_left < 0) {
+          this.time_left = null;
+          return this.advance_func();
+        }
+      }
+    };
 
     Controller_Story.prototype.window_resize = function(event) {};
 

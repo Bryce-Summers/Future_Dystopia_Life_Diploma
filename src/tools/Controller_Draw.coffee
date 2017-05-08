@@ -18,6 +18,17 @@ class FDP.Controller_Draw
         # The background image
         @background = null
 
+
+        # Logic for the center text displays.
+        @background_color = null
+        @background_alpha = 1.0
+        @background_target_alpha = 1.0
+
+        @center_text_message = null
+        @center_text_color = null
+
+        @transition_speed = .01
+
     setActive: (isActive) ->
 
         @_active = isActive
@@ -42,15 +53,32 @@ class FDP.Controller_Draw
         @_G_Canvas.clearScreen()
 
         # Draw the boundary lines of the screen.
-        @_G_Canvas.drawScreenBounds();
 
         if @background != null
             @_G_Canvas.drawImage(@background, 0, 0)
 
+        if @background_alpha != null
+            @_G_Canvas.setAlpha(@background_alpha)
+        if @background_color != null
+            @_G_Canvas.fillColor(@background_color.toInt())
+            @_G_Canvas.fillScreen()
+
+            if @center_text_message
+                @_G_Canvas.fillColor(@center_text_color.toInt())
+                @_G_Canvas.centerAlignFont()
+                @_G_Canvas.setFont("Verdana", 40)
+                @_G_Canvas.drawText(@center_text_message, @_G_Canvas.w/2, @_G_Canvas.h/2)
+
+        @background_alpha = (1.0 - @transition_speed)*@background_alpha + @transition_speed*@background_target_alpha
+
+        @_G_Canvas.setAlpha(1.0)
+
+        ###
         for r in [0 ... @state.h]
             for c in [0 ... @state.w]
                 color = @state.readGrid(r, c, null)
                 @drawGridSquare(r, c, color)
+        ###
 
         # FIXME: Draw the array state.
 
@@ -75,5 +103,23 @@ class FDP.Controller_Draw
     window_resize: (event) ->
 
     # Set the background image.
-    setBackground: (img) ->
+    backgroundImage: (img) ->
         @background = img
+
+    # Mono Colors the background.
+    # user sets the color using setFillColor() before hand.
+    # FDP.Color, float (optional)
+    # The color of the background, and the alpha value that we will interpoplate the program to.
+    backgroundMono: (color, target_alpha, transition_speed) ->
+        @background_color = color       
+        @background_target_alpha = target_alpha
+        @transition_speed = transition_speed
+
+        if not transition_speed
+            @transition_speed = .01
+        return
+
+    centerMessage: (text, color) ->
+        @center_text_message = text
+        @center_text_color = color
+        return
